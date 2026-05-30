@@ -5,6 +5,7 @@ import './App.css';
 import LanguageSelector from './components/LanguageSelector';
 import StudySidebar from './components/StudySidebar';
 import StudyViewer from './components/StudyViewer';
+import AiChat from './components/AiChat';
 
 function App() {
   const [language, setLanguage] = useState(() => localStorage.getItem('app_language') || 'en');
@@ -97,6 +98,13 @@ function App() {
           )}
         </section>
       </main>
+
+      <AiChat 
+        currentStudy={currentStudy} 
+        setLanguage={setLanguage} 
+        studies={studies} 
+        onSelectStudy={handleSelectStudy} 
+      />
     </div>
   );
 }
