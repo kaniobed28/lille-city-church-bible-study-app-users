@@ -5,7 +5,7 @@ import './AiChat.css';
 export default function AiChat({ currentStudy, setLanguage, studies, onSelectStudy }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! I am your new Gemini Study Assistant. I can answer questions about this week\'s study, or help you navigate the app without any rate limits! How can I help?' }
+    { role: 'assistant', content: 'Hello! I am your new Lille City Church Assistant. I can answer questions about this week\'s study, or help you navigate the app without any rate limits! How can I help?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -132,7 +132,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
       {isOpen ? (
         <div className="ai-chat-window">
           <div className="ai-chat-header">
-            <h3>Gemini Study Assistant</h3>
+            <h3>Lille City Church Assistant</h3>
             <button onClick={() => setIsOpen(false)} className="close-chat-btn">✕</button>
           </div>
           <div className="ai-chat-messages">
@@ -166,7 +166,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
         </div>
       ) : (
         <button className="ai-chat-toggle" onClick={() => setIsOpen(true)}>
-          <span className="sparkle">✨</span> Ask Gemini
+          <span className="sparkle">✨</span> Ask Lille City Church
         </button>
       )}
     </div>
