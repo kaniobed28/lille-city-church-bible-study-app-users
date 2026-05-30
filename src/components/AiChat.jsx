@@ -17,7 +17,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
   useEffect(() => {
     if (!chatSessionRef.current) {
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-pro", 
+        model: "gemini-2.5-flash", 
         tools: aiTools 
       });
       chatSessionRef.current = model.startChat();
