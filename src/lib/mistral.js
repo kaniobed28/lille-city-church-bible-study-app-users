@@ -2,7 +2,10 @@ import { Mistral } from '@mistralai/mistralai';
 
 // API Key directly integrated as requested
 const apiKey = "oKnOPGPYxjb0ee7jYZ5PF1o2QMCSj4mz";
-export const mistralClient = new Mistral({ apiKey });
+export const mistralClient = new Mistral({ 
+  apiKey,
+  dangerouslyAllowBrowser: true // Required by the SDK to run in the frontend
+});
 
 export const aiTools = [
   {
