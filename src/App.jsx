@@ -61,6 +61,7 @@ function App() {
           <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Toggle menu">
             ☰
           </button>
+          <img src="/logo.png" alt="Church Logo" className="app-logo" onError={(e) => e.target.style.display='none'} />
           <h1 className="app-title" data-testid="main-title">Bible Study App</h1>
         </div>
         <LanguageSelector language={language} setLanguage={setLanguage} />
