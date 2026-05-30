@@ -1,15 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { mistralClient, aiTools } from '../lib/mistral';
+import { genAI, aiTools } from '../lib/gemini';
 import './AiChat.css';
 
 export default function AiChat({ currentStudy, setLanguage, studies, onSelectStudy }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! I am your AI Study Assistant. I can answer questions about this week\'s study, or help you navigate the app! How can I help?' }
+    { role: 'assistant', content: 'Hello! I am your new Gemini Study Assistant. I can answer questions about this week\'s study, or help you navigate the app without any rate limits! How can I help?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
   const chatEndRef = useRef(null);
+  const chatSessionRef = useRef(null);
+
+  // Initialize Gemini Chat Session
+  useEffect(() => {
+    if (!chatSessionRef.current) {
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-pro", 
+        tools: aiTools 
+      });
+      chatSessionRef.current = model.startChat();
+    }
+  }, []);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
@@ -18,11 +31,8 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
     }
   }, [messages, isOpen]);
 
-  const handleToolCall = async (toolCall, newMessages) => {
-    const { name, arguments: argsString } = toolCall.function;
-    const args = JSON.parse(argsString || '{}');
+  const handleToolCall = (name, args) => {
     let toolResult = "";
-
     console.log(`AI called function: ${name}`, args);
 
     if (name === 'get_study_context') {
@@ -63,68 +73,48 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
       toolResult = "Unknown function called.";
     }
 
-    // Append tool response
-    newMessages.push({
-      role: 'tool',
-      name: name,
-      content: toolResult,
-      tool_call_id: toolCall.id
-    });
-
-    return newMessages;
+    return { result: toolResult };
   };
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !chatSessionRef.current) return;
 
-    const userMsg = { role: 'user', content: input };
-    let currentMessages = [...messages, userMsg];
-    setMessages(currentMessages);
+    const userText = input;
+    setMessages(prev => [...prev, { role: 'user', content: userText }]);
     setInput('');
     setIsLoading(true);
 
     try {
-      let response = await mistralClient.chat.complete({
-        model: 'mistral-large-latest',
-        messages: currentMessages,
-        tools: aiTools,
-        toolChoice: 'auto',
-      });
-
-      let responseMessage = response.choices[0].message;
+      let result = await chatSessionRef.current.sendMessage(userText);
       
-      // Fix for Mistral SDK: Convert camelCase toolCalls to snake_case tool_calls
-      const assistantMessage = {
-        role: responseMessage.role,
-        content: responseMessage.content || '',
-      };
-      if (responseMessage.toolCalls) {
-        assistantMessage.tool_calls = responseMessage.toolCalls;
-      }
-      currentMessages.push(assistantMessage);
+      // Handle potential function calling loop
+      while (result.response.functionCalls && result.response.functionCalls().length > 0) {
+        const calls = result.response.functionCalls();
+        const functionResponses = [];
 
-      // Handle function calling loop
-      while (responseMessage.toolCalls && responseMessage.toolCalls.length > 0) {
-        for (const toolCall of responseMessage.toolCalls) {
-          currentMessages = await handleToolCall(toolCall, currentMessages);
+        for (const call of calls) {
+          const functionResponseData = handleToolCall(call.name, call.args);
+          functionResponses.push({
+            functionResponse: {
+              name: call.name,
+              response: functionResponseData
+            }
+          });
         }
 
-        // Send tool results back to Mistral
-        response = await mistralClient.chat.complete({
-          model: 'mistral-large-latest',
-          messages: currentMessages,
-          tools: aiTools,
-          toolChoice: 'auto',
-        });
-        
-        responseMessage = response.choices[0].message;
-        currentMessages.push(responseMessage);
+        // Send the tool results back to Gemini
+        result = await chatSessionRef.current.sendMessage(functionResponses);
       }
 
-      setMessages([...currentMessages]);
+      // Finally, display Gemini's text response
+      const textResponse = result.response.text();
+      if (textResponse) {
+        setMessages(prev => [...prev, { role: 'assistant', content: textResponse }]);
+      }
+
     } catch (error) {
-      console.error("Mistral API Error:", error);
-      setMessages([...currentMessages, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
+      console.error("Gemini API Error:", error);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error communicating with Gemini. Please try again.' }]);
     } finally {
       setIsLoading(false);
     }
@@ -141,11 +131,11 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
       {isOpen ? (
         <div className="ai-chat-window">
           <div className="ai-chat-header">
-            <h3>AI Study Assistant</h3>
+            <h3>Gemini Study Assistant</h3>
             <button onClick={() => setIsOpen(false)} className="close-chat-btn">✕</button>
           </div>
           <div className="ai-chat-messages">
-            {messages.filter(m => m.role !== 'tool' && !m.toolCalls).map((msg, idx) => (
+            {messages.map((msg, idx) => (
               <div key={idx} className={`chat-message ${msg.role}`}>
                 <div className="chat-bubble">
                   {msg.content}
@@ -175,7 +165,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
         </div>
       ) : (
         <button className="ai-chat-toggle" onClick={() => setIsOpen(true)}>
-          <span className="sparkle">✨</span> Ask AI
+          <span className="sparkle">✨</span> Ask Gemini
         </button>
       )}
     </div>
