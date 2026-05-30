@@ -87,9 +87,9 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
     try {
       let result = await chatSessionRef.current.sendMessage(userText);
       
+      let calls = result.response.functionCalls();
       // Handle potential function calling loop
-      while (result.response.functionCalls && result.response.functionCalls().length > 0) {
-        const calls = result.response.functionCalls();
+      while (calls && calls.length > 0) {
         const functionResponses = [];
 
         for (const call of calls) {
@@ -104,6 +104,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
 
         // Send the tool results back to Gemini
         result = await chatSessionRef.current.sendMessage(functionResponses);
+        calls = result.response.functionCalls();
       }
 
       // Finally, display Gemini's text response
@@ -114,7 +115,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
 
     } catch (error) {
       console.error("Gemini API Error:", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error communicating with Gemini. Please try again.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: `DEBUG ERROR: ${error.message}` }]);
     } finally {
       setIsLoading(false);
     }
