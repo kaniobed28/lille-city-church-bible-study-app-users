@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {
-        name: 'Camseltry Study',
-        short_name: 'Study App',
+        name: 'Lille City Church Bible Study',
+        short_name: 'LCC Study',
         description: 'Offline-capable Bible Study App',
         theme_color: '#4f46e5',
         background_color: '#14141e',
