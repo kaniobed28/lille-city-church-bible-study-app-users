@@ -17,7 +17,8 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
   useEffect(() => {
     if (!chatSessionRef.current) {
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash", 
+        model: "gemini-2.5-flash",
+        systemInstruction: "You are the Lille City Church Bible Study Assistant. You have deep knowledge of the entire Bible. If the user asks for a Bible verse, chapter, or theological concept, you must answer them directly from your own knowledge. Do not refuse to quote scriptures. You also have tools to navigate the app and read the current study on the screen.",
         tools: aiTools 
       });
       chatSessionRef.current = model.startChat();
