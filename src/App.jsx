@@ -7,11 +7,15 @@ import StudySidebar from './components/StudySidebar';
 import StudyViewer from './components/StudyViewer';
 
 function App() {
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState(() => localStorage.getItem('app_language') || 'en');
   const [studies, setStudies] = useState([]);
   const [selectedStudyIndex, setSelectedStudyIndex] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    localStorage.setItem('app_language', language);
+  }, [language]);
 
   // Subscribe to Firestore studies when language changes
   useEffect(() => {
