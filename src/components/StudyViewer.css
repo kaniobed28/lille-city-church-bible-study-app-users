@@ -1,0 +1,104 @@
+.study-viewer {
+  background: rgba(20, 20, 30, 0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.viewer-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #9ca3af;
+  font-size: 1.2rem;
+}
+
+.viewer-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.viewer-week {
+  font-size: 0.9rem;
+  color: #4f46e5;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.viewer-topic {
+  font-size: 2rem;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.viewer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.viewer-section h3 {
+  font-size: 1.2rem;
+  color: #e5e7eb;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  display: inline-block;
+  border-bottom: 2px solid #4f46e5;
+  padding-bottom: 0.25rem;
+}
+
+.viewer-section p {
+  color: #d1d5db;
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+.pre-wrap-text {
+  white-space: pre-wrap;
+}
+
+.main-texts p {
+  font-weight: 500;
+  color: #60a5fa;
+}
+
+.memory-verse blockquote {
+  background: rgba(79, 70, 229, 0.1);
+  border-left: 4px solid #4f46e5;
+  padding: 1rem 1.5rem;
+  margin: 0;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #f3f4f6;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.conclusion {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.study-viewer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.study-viewer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.qa-block { margin-bottom: 1.5rem; padding: 1rem; background-color: var(--accent-bg); border-left: 4px solid var(--accent); border-radius: 4px; }
+.qa-question { font-weight: 600; color: var(--text-h); margin-bottom: 0.5rem; }
+.qa-answer { margin-bottom: 0.5rem; padding-left: 1rem; }
+.life-app-list { padding-left: 1.5rem; }
+.life-app-list li { margin-bottom: 0.5rem; }
+.qa-hidden-msg { font-style: italic; color: #9ca3af; background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem; }
