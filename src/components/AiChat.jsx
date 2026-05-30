@@ -92,7 +92,16 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
       });
 
       let responseMessage = response.choices[0].message;
-      currentMessages.push(responseMessage);
+      
+      // Fix for Mistral SDK: Convert camelCase toolCalls to snake_case tool_calls
+      const assistantMessage = {
+        role: responseMessage.role,
+        content: responseMessage.content || '',
+      };
+      if (responseMessage.toolCalls) {
+        assistantMessage.tool_calls = responseMessage.toolCalls;
+      }
+      currentMessages.push(assistantMessage);
 
       // Handle function calling loop
       while (responseMessage.toolCalls && responseMessage.toolCalls.length > 0) {
