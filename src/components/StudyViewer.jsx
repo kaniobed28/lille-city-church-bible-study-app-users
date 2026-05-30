@@ -1,7 +1,7 @@
 import React from 'react';
 import './StudyViewer.css';
 
-function StudyViewer({ study }) {
+function StudyViewer({ study, onVerseClick }) {
   if (!study) {
     return <div className="viewer-empty" data-testid="viewer-empty">Select a study from the sidebar</div>;
   }
@@ -17,14 +17,26 @@ function StudyViewer({ study }) {
         {study.mainTexts && (
           <div className="viewer-section main-texts">
             <h3>Main Texts</h3>
-            <p>{study.mainTexts}</p>
+            <p 
+              className={onVerseClick ? "clickable-verse" : ""} 
+              onClick={() => onVerseClick && onVerseClick(study.mainTexts)}
+              title={onVerseClick ? "Click to read in AI Assistant" : ""}
+            >
+              {study.mainTexts}
+            </p>
           </div>
         )}
         
         {study.memoryVerse && (
           <div className="viewer-section memory-verse">
             <h3>Memory Verse</h3>
-            <blockquote>{study.memoryVerse}</blockquote>
+            <blockquote 
+              className={onVerseClick ? "clickable-verse" : ""}
+              onClick={() => onVerseClick && onVerseClick(study.memoryVerse)}
+              title={onVerseClick ? "Click to read in AI Assistant" : ""}
+            >
+              {study.memoryVerse}
+            </blockquote>
           </div>
         )}
 

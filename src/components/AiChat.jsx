@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { genAI, aiTools } from '../lib/gemini';
 import './AiChat.css';
 
-export default function AiChat({ currentStudy, setLanguage, studies, onSelectStudy }) {
+export default function AiChat({ currentStudy, setLanguage, studies, onSelectStudy, externalQuery, clearExternalQuery }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Hello! I am your new Lille City Church Assistant. I can answer questions about this week\'s study, or help you navigate the app without any rate limits! How can I help?' }
@@ -77,12 +77,10 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
     return { result: toolResult };
   };
 
-  const sendMessage = async () => {
-    if (!input.trim() || !chatSessionRef.current) return;
+  const processMessage = async (userText) => {
+    if (!userText.trim() || !chatSessionRef.current) return;
 
-    const userText = input;
     setMessages(prev => [...prev, { role: 'user', content: userText }]);
-    setInput('');
     setIsLoading(true);
 
     try {
@@ -122,9 +120,25 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
     }
   };
 
+  const handleSendClick = () => {
+    if (input.trim() && !isLoading) {
+      const text = input;
+      setInput('');
+      processMessage(text);
+    }
+  };
+
+  useEffect(() => {
+    if (externalQuery && chatSessionRef.current && !isLoading) {
+      setIsOpen(true);
+      processMessage(externalQuery);
+      clearExternalQuery();
+    }
+  }, [externalQuery, isLoading]);
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      sendMessage();
+      handleSendClick();
     }
   };
 
@@ -160,7 +174,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
               placeholder="Ask a question or command..."
               disabled={isLoading}
             />
-            <button onClick={sendMessage} disabled={isLoading || !input.trim()}>
+            <button onClick={handleSendClick} disabled={isLoading || !input.trim()}>
               ➤
             </button>
           </div>

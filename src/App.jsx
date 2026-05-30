@@ -50,9 +50,15 @@ function App() {
 
   const currentStudy = studies[selectedStudyIndex] || null;
 
+  const [aiQuery, setAiQuery] = useState('');
+
   const handleSelectStudy = (index) => {
     setSelectedStudyIndex(index);
     setIsSidebarOpen(false); // Close sidebar on mobile after selection
+  };
+
+  const handleVerseClick = (verse) => {
+    setAiQuery(`Please provide the following Bible verse: ${verse}. Use the NKJV version unless I have previously asked for a different version.`);
   };
 
   const toggleSidebar = () => {
@@ -94,7 +100,7 @@ function App() {
           {loading ? (
             <div className="viewer-empty">Loading study...</div>
           ) : (
-            <StudyViewer study={currentStudy} />
+            <StudyViewer study={currentStudy} onVerseClick={handleVerseClick} />
           )}
         </section>
       </main>
@@ -104,6 +110,8 @@ function App() {
         setLanguage={setLanguage} 
         studies={studies} 
         onSelectStudy={handleSelectStudy} 
+        externalQuery={aiQuery}
+        clearExternalQuery={() => setAiQuery('')}
       />
     </div>
   );
