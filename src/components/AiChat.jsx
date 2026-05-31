@@ -86,9 +86,13 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
     try {
       let result = await chatSessionRef.current.sendMessage(userText);
       
-      let calls = result.response.functionCalls();
+      let calls = result.response.functionCalls && result.response.functionCalls();
+      let loopCount = 0;
+      const MAX_LOOPS = 5;
+
       // Handle potential function calling loop
-      while (calls && calls.length > 0) {
+      while (calls && calls.length > 0 && loopCount < MAX_LOOPS) {
+        loopCount++;
         const functionResponses = [];
 
         for (const call of calls) {
@@ -103,7 +107,11 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
 
         // Send the tool results back to Gemini
         result = await chatSessionRef.current.sendMessage(functionResponses);
-        calls = result.response.functionCalls();
+        calls = result.response.functionCalls && result.response.functionCalls();
+      }
+
+      if (loopCount >= MAX_LOOPS) {
+        console.warn("Max function call loops reached. Stopping to prevent infinite loops.");
       }
 
       // Finally, display Gemini's text response
@@ -114,7 +122,16 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
 
     } catch (error) {
       console.error("Gemini API Error:", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: `DEBUG ERROR: ${error.message}` }]);
+      let errorMessage = "Sorry, I encountered an error communicating with the AI. Please try again.";
+      
+      // Friendly rate limit message
+      if (error.message && error.message.includes("429")) {
+        errorMessage = "Whoa there! We're talking a little too fast and hit the free-tier speed limit. Please wait about 30-60 seconds and try again!";
+      } else {
+        errorMessage = `DEBUG ERROR: ${error.message}`;
+      }
+      
+      setMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
     } finally {
       setIsLoading(false);
     }
