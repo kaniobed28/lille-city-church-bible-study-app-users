@@ -38,7 +38,17 @@ function App() {
         }
       });
       setStudies(fetched);
-      setSelectedStudyIndex(0);
+      
+      // Attempt to restore the user's previously selected study by orderId
+      const savedOrderId = localStorage.getItem('app_saved_orderId');
+      let targetIndex = 0;
+      if (savedOrderId !== null && fetched.length > 0) {
+        const foundIndex = fetched.findIndex(s => s.orderId && s.orderId.toString() === savedOrderId);
+        if (foundIndex !== -1) {
+          targetIndex = foundIndex;
+        }
+      }
+      setSelectedStudyIndex(targetIndex);
       setLoading(false);
     }, (error) => {
       console.error("Error fetching studies from Firestore:", error);
@@ -49,6 +59,13 @@ function App() {
   }, [language]);
 
   const currentStudy = studies[selectedStudyIndex] || null;
+
+  // Cache the currently viewed study so it persists on refresh
+  useEffect(() => {
+    if (currentStudy && currentStudy.orderId !== undefined) {
+      localStorage.setItem('app_saved_orderId', currentStudy.orderId.toString());
+    }
+  }, [currentStudy]);
 
   const [aiQuery, setAiQuery] = useState('');
 
