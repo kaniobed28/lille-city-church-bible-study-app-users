@@ -75,7 +75,7 @@
   margin: 0;
   border-radius: 0 8px 8px 0;
   font-style: italic;
-  color: #f3f4f6;
+  color: var(--text-color);
   font-size: 1.1rem;
   line-height: 1.6;
 }
