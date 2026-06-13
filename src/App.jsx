@@ -6,7 +6,7 @@ import LanguageSelector from './components/LanguageSelector';
 import StudySidebar from './components/StudySidebar';
 import StudyViewer from './components/StudyViewer';
 import AiChat from './components/AiChat';
-
+import ThemeToggle from './components/ThemeToggle';
 function App() {
   const [language, setLanguage] = useState(() => localStorage.getItem('app_language') || 'en');
   const [studies, setStudies] = useState([]);
@@ -74,7 +74,10 @@ function App() {
           </button>
           <h1 className="app-title" data-testid="main-title">Bible Study App</h1>
         </div>
-        <LanguageSelector language={language} setLanguage={setLanguage} />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <LanguageSelector language={language} setLanguage={setLanguage} />
+          <ThemeToggle />
+        </div>
       </header>
       
       <main className="dashboard-layout">

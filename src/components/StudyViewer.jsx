@@ -9,7 +9,11 @@ function StudyViewer({ study, onVerseClick }) {
   return (
     <div className="study-viewer" data-testid="study-viewer">
       <header className="viewer-header">
-        <h2 className="viewer-week">Week {study.week}: {study.type}</h2>
+        <h2 className="viewer-week">
+          {study.type === 'Home Cell' || study.type === 'Special Event' 
+            ? `${study.type}${study.week ? ` (Week ${study.week})` : ''}` 
+            : `Week ${study.week}: ${study.type}`}
+        </h2>
         <h1 className="viewer-topic">{study.topic}</h1>
       </header>
       

@@ -1,1 +1,63 @@
+:root {
+  /* Dark Mode (Default) */
+  --bg-color: #0f172a;
+  --surface-color: rgba(20, 20, 30, 0.7);
+  --surface-hover: #334155;
+  --surface-transparent: rgba(255, 255, 255, 0.03);
+  --surface-transparent-hover: rgba(255, 255, 255, 0.07);
+  
+  --text-color: #f8fafc;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-inverse: #ffffff;
+  --text-inverse-muted: rgba(255, 255, 255, 0.8);
+  
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  
+  --primary-color: #4f46e5;
+  --primary-hover: #6366f1;
+  --primary-transparent: rgba(79, 70, 229, 0.15);
+  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --primary-shadow: rgba(124, 58, 237, 0.4);
+  --primary-shadow-hover: rgba(124, 58, 237, 0.6);
+  
+  --accent-primary: #60a5fa;
+  --accent-gradient: linear-gradient(135deg, #a78bfa, #3b82f6);
+  
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+}
+
+:root[data-theme='light'] {
+  /* Light Mode */
+  --bg-color: #f8fafc;
+  --surface-color: #ffffff;
+  --surface-hover: #f1f5f9;
+  --surface-transparent: rgba(0, 0, 0, 0.03);
+  --surface-transparent-hover: rgba(0, 0, 0, 0.07);
+  
+  --text-color: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --text-inverse: #ffffff;
+  --text-inverse-muted: rgba(255, 255, 255, 0.8);
+  
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  
+  --primary-color: #4f46e5;
+  --primary-hover: #6366f1;
+  --primary-transparent: rgba(79, 70, 229, 0.1);
+  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --primary-shadow: rgba(124, 58, 237, 0.3);
+  --primary-shadow-hover: rgba(124, 58, 237, 0.5);
+  
+  --accent-primary: #2563eb;
+  --accent-gradient: linear-gradient(135deg, #7c3aed, #2563eb);
+  
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+}
+
 /* Global resets are handled in App.css */
