@@ -6,9 +6,9 @@
    ============================================================ */
 
 :root {
-  /* --- Typography --- */
-  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-reading: 'Newsreader', Georgia, 'Times New Roman', serif;
+  /* --- Typography (self-hosted variable fonts, see main.jsx) --- */
+  --font-ui: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-reading: 'Newsreader Variable', 'Newsreader', Georgia, 'Times New Roman', serif;
 
   /* --- Shape & rhythm --- */
   --radius-sm: 8px;

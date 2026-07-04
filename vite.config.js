@@ -8,6 +8,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['logo.png'],
+      workbox: {
+        // Precache self-hosted fonts so the app renders in Newsreader/Inter offline.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // The app is English/French only — don't precache subsets it can't display.
+        globIgnores: ['**/*cyrillic*', '**/*greek*', '**/*vietnamese*'],
+      },
       manifest: {
         name: 'Lille City Church Bible Study',
         short_name: 'LCC Study',
