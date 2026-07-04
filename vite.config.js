@@ -12,8 +12,8 @@ export default defineConfig({
         name: 'Lille City Church Bible Study',
         short_name: 'LCC Study',
         description: 'Offline-capable Bible Study App',
-        theme_color: '#4f46e5',
-        background_color: '#14141e',
+        theme_color: '#14131a',
+        background_color: '#14131a',
         display: 'standalone',
         icons: [
           {
