@@ -1,63 +1,113 @@
+/* ============================================================
+   Design System — "Sanctuary Reading"
+   A warm, editorial reading experience for scripture study.
+   Color has meaning:  indigo = actions/navigation,
+                       gold  = the Word (scripture & verses).
+   ============================================================ */
+
 :root {
-  /* Dark Mode (Default) */
-  --bg-color: #0f172a;
-  --surface-color: rgba(20, 20, 30, 0.7);
-  --surface-hover: #334155;
-  --surface-transparent: rgba(255, 255, 255, 0.03);
+  /* --- Typography --- */
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-reading: 'Newsreader', Georgia, 'Times New Roman', serif;
+
+  /* --- Shape & rhythm --- */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --measure: 68ch;            /* comfortable reading line length */
+
+  /* ============================================================
+     DARK MODE (default) — deep, restful sanctuary
+     ============================================================ */
+  --bg-color: #14131a;
+  --bg-elevated: #191821;
+  --surface-color: #1d1b25;
+  --surface-hover: #272531;
+  --surface-transparent: rgba(255, 255, 255, 0.035);
   --surface-transparent-hover: rgba(255, 255, 255, 0.07);
-  
-  --text-color: #f8fafc;
-  --text-secondary: #d1d5db;
-  --text-muted: #9ca3af;
+
+  --text-color: #ece7de;          /* warm off-white — kinder than pure #fff */
+  --text-h: #f5f1ea;              /* headings */
+  --text-reading: #d7d1c6;        /* long-form body copy */
+  --text-secondary: #b3aca0;
+  --text-muted: #857e72;
   --text-inverse: #ffffff;
-  --text-inverse-muted: rgba(255, 255, 255, 0.8);
-  
-  --border-color: rgba(255, 255, 255, 0.1);
-  --shadow-color: rgba(0, 0, 0, 0.5);
-  
-  --primary-color: #4f46e5;
-  --primary-hover: #6366f1;
-  --primary-transparent: rgba(79, 70, 229, 0.15);
-  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  --primary-shadow: rgba(124, 58, 237, 0.4);
-  --primary-shadow-hover: rgba(124, 58, 237, 0.6);
-  
-  --accent-primary: #60a5fa;
-  --accent-gradient: linear-gradient(135deg, #a78bfa, #3b82f6);
-  
-  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --text-inverse-muted: rgba(255, 255, 255, 0.82);
+
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --shadow-color: rgba(0, 0, 0, 0.45);
+
+  /* Indigo — interactive / navigation */
+  --primary-color: #8b7ae8;
+  --primary-hover: #a294f0;
+  --primary-transparent: rgba(139, 122, 232, 0.16);
+  --primary-gradient: linear-gradient(135deg, #6d5cc9 0%, #8b7ae8 100%);
+  --primary-shadow: rgba(109, 92, 201, 0.45);
+  --primary-shadow-hover: rgba(109, 92, 201, 0.65);
+
+  /* Gold — scripture / the Word */
+  --accent: #d9a441;
+  --accent-primary: #e2b45a;
+  --accent-bg: rgba(217, 164, 65, 0.11);
+  --accent-gradient: linear-gradient(135deg, #e6c078, #d9a441);
+
+  --scrollbar-thumb: rgba(255, 255, 255, 0.16);
   --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+
+  color-scheme: dark;
 }
 
 :root[data-theme='light'] {
-  /* Light Mode */
-  --bg-color: #f8fafc;
-  --surface-color: #ffffff;
-  --surface-hover: #f1f5f9;
-  --surface-transparent: rgba(0, 0, 0, 0.03);
-  --surface-transparent-hover: rgba(0, 0, 0, 0.07);
-  
-  --text-color: #111827;
-  --text-secondary: #4b5563;
-  --text-muted: #6b7280;
-  --text-inverse: #ffffff;
-  --text-inverse-muted: rgba(255, 255, 255, 0.8);
-  
-  --border-color: rgba(0, 0, 0, 0.1);
-  --shadow-color: rgba(0, 0, 0, 0.05);
-  
-  --primary-color: #4f46e5;
-  --primary-hover: #6366f1;
-  --primary-transparent: rgba(79, 70, 229, 0.1);
-  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  --primary-shadow: rgba(124, 58, 237, 0.3);
-  --primary-shadow-hover: rgba(124, 58, 237, 0.5);
-  
-  --accent-primary: #2563eb;
-  --accent-gradient: linear-gradient(135deg, #7c3aed, #2563eb);
-  
-  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
-  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+  /* ============================================================
+     LIGHT MODE — warm paper, ink, gold leaf
+     ============================================================ */
+  --bg-color: #f4efe6;
+  --bg-elevated: #fbf8f2;
+  --surface-color: #fffdf8;
+  --surface-hover: #f1ebdf;
+  --surface-transparent: rgba(60, 45, 25, 0.035);
+  --surface-transparent-hover: rgba(60, 45, 25, 0.06);
+
+  --text-color: #221d17;          /* warm ink */
+  --text-h: #1a150f;
+  --text-reading: #332d25;
+  --text-secondary: #4d453b;
+  --text-muted: #8a8072;
+  --text-inverse: #fffdf8;
+  --text-inverse-muted: rgba(255, 255, 255, 0.9);
+
+  --border-color: rgba(50, 40, 25, 0.11);
+  --border-strong: rgba(50, 40, 25, 0.2);
+  --shadow-color: rgba(45, 33, 15, 0.12);
+
+  --primary-color: #4b3fae;
+  --primary-hover: #5b4ec8;
+  --primary-transparent: rgba(75, 63, 174, 0.1);
+  --primary-gradient: linear-gradient(135deg, #4b3fae 0%, #6d5cc9 100%);
+  --primary-shadow: rgba(75, 63, 174, 0.28);
+  --primary-shadow-hover: rgba(75, 63, 174, 0.45);
+
+  --accent: #a56a1e;
+  --accent-primary: #97611a;
+  --accent-bg: rgba(165, 106, 30, 0.09);
+  --accent-gradient: linear-gradient(135deg, #c08a3c, #97611a);
+
+  --scrollbar-thumb: rgba(50, 40, 25, 0.18);
+  --scrollbar-thumb-hover: rgba(50, 40, 25, 0.32);
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--primary-transparent);
+  color: var(--text-h);
 }
 
 /* Global resets are handled in App.css */

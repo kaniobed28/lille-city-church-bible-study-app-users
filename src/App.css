@@ -1,5 +1,5 @@
 #root {
-  max-width: 1280px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0;
   text-align: left;
@@ -7,25 +7,33 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font-ui);
   background-color: var(--bg-color);
   color: var(--text-color);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* soft ambient glow — barely-there, gives the page depth */
+  background-image:
+    radial-gradient(1100px 620px at 82% -8%, var(--primary-transparent), transparent 60%),
+    radial-gradient(900px 520px at 8% 108%, var(--accent-bg), transparent 60%);
+  background-attachment: fixed;
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding: 1.5rem;
+  padding: 1.5rem 1.75rem;
   box-sizing: border-box;
 }
 
+/* ---------- Header ---------- */
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 1.5rem;
 }
@@ -33,7 +41,7 @@ body {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
 .mobile-menu-btn {
@@ -41,20 +49,36 @@ body {
   background: none;
   border: none;
   color: var(--text-color);
-  font-size: 1.8rem;
+  font-size: 1.6rem;
+  line-height: 1;
   cursor: pointer;
-  padding: 0;
+  padding: 0.25rem;
 }
 
 .app-title {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-family: var(--font-reading);
+  font-size: 1.7rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-h);
   margin: 0;
-  background: linear-gradient(135deg, #a78bfa, var(--accent-primary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
 }
 
+/* small gold emblem before the title — a quiet mark of identity */
+.app-title::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 0 4px var(--accent-bg);
+  flex: none;
+}
+
+/* ---------- Layout ---------- */
 .dashboard-layout {
   display: flex;
   gap: 2rem;
@@ -64,7 +88,7 @@ body {
 }
 
 .sidebar-container {
-  flex: 0 0 320px;
+  flex: 0 0 300px;
   display: flex;
   flex-direction: column;
 }
@@ -78,18 +102,64 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
 }
 
 .overlay {
   display: none;
 }
 
-/* Media Queries for Mobile Responsiveness */
+/* ---------- Loading skeletons ---------- */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-transparent);
+  border-radius: 6px;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--surface-transparent-hover),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+.skeleton-line {
+  height: 1.1rem;
+  margin-bottom: 0.8rem;
+  width: 100%;
+}
+
+.skeleton-line.short {
+  width: 45%;
+}
+
+.skeleton-item {
+  cursor: default;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
+}
+
+/* ---------- Mobile ---------- */
 @media (max-width: 900px) {
   .app-container {
     padding: 1rem;
   }
-  
+
   .app-header {
     flex-direction: column;
     align-items: flex-start;
@@ -97,12 +167,12 @@ body {
     padding-bottom: 1rem;
     margin-bottom: 1rem;
   }
-  
+
   .header-left {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .mobile-menu-btn {
     display: block;
     order: -1;
@@ -114,11 +184,11 @@ body {
     top: 0;
     bottom: 0;
     width: 300px;
-    background: var(--bg-color);
+    background: var(--bg-elevated);
     z-index: 100;
-    transition: left 0.3s ease;
+    transition: left 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     border-right: 1px solid var(--border-color);
-    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
+    box-shadow: 24px 0 60px rgba(0, 0, 0, 0.4);
     padding: 1rem;
   }
 
@@ -137,24 +207,29 @@ body {
 
   .sidebar-header-mobile h2 {
     margin: 0;
-    font-size: 1.2rem;
+    font-family: var(--font-reading);
+    font-weight: 500;
+    font-size: 1.25rem;
+    color: var(--text-h);
   }
 
   .close-btn {
     background: none;
     border: none;
     color: var(--text-color);
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+    line-height: 1;
     cursor: pointer;
+    padding: 0.25rem;
   }
 
   .overlay {
     display: block;
     position: absolute;
     inset: 0;
-    background: var(--shadow-color);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 50;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(3px);
   }
 
   .viewer-container {

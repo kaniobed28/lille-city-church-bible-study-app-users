@@ -104,10 +104,17 @@ function App() {
             <button className="close-btn" onClick={toggleSidebar}>✕</button>
           </div>
           {loading ? (
-             <div className="sidebar-empty">Loading...</div>
+            <div className="study-sidebar" aria-busy="true" aria-label="Loading studies">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="sidebar-item skeleton-item">
+                  <div className="skeleton skeleton-line short"></div>
+                  <div className="skeleton skeleton-line"></div>
+                </div>
+              ))}
+            </div>
           ) : (
-            <StudySidebar 
-              studies={studies} 
+            <StudySidebar
+              studies={studies}
               selectedStudyIndex={selectedStudyIndex}
               onSelectStudy={handleSelectStudy}
             />
@@ -118,7 +125,19 @@ function App() {
 
         <section className="viewer-container">
           {loading ? (
-            <div className="viewer-empty">Loading study...</div>
+            <div className="study-viewer" aria-busy="true" aria-label="Loading study">
+              <div className="viewer-measure">
+                <div className="skeleton skeleton-line short" style={{ width: '30%', height: '0.9rem' }}></div>
+                <div className="skeleton skeleton-line" style={{ width: '75%', height: '2.25rem', margin: '1rem 0 2.5rem' }}></div>
+                <div className="skeleton skeleton-line" style={{ width: '25%', height: '0.9rem', marginBottom: '1rem' }}></div>
+                <div className="skeleton skeleton-line"></div>
+                <div className="skeleton skeleton-line"></div>
+                <div className="skeleton skeleton-line" style={{ width: '85%' }}></div>
+                <div className="skeleton skeleton-line" style={{ width: '40%', height: '0.9rem', margin: '2.5rem 0 1rem' }}></div>
+                <div className="skeleton skeleton-line"></div>
+                <div className="skeleton skeleton-line" style={{ width: '70%' }}></div>
+              </div>
+            </div>
           ) : (
             <StudyViewer study={currentStudy} onVerseClick={handleVerseClick} />
           )}

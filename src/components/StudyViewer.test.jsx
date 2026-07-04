@@ -23,7 +23,7 @@ describe('StudyViewer', () => {
     render(<StudyViewer study={mockStudy} />);
     
     expect(screen.getByTestId('study-viewer')).toBeInTheDocument();
-    expect(screen.getByText('Week 1: Bible Study')).toBeInTheDocument();
+    expect(screen.getByText('Week 1 · Bible Study')).toBeInTheDocument();
     expect(screen.getByText('Test Topic')).toBeInTheDocument();
     expect(screen.getByText('John 3:16')).toBeInTheDocument();
     expect(screen.getByText('Jesus wept.')).toBeInTheDocument();

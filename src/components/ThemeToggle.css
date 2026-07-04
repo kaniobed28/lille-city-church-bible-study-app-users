@@ -1,20 +1,21 @@
 .theme-toggle-btn {
-  background: transparent;
-  border: 1px solid var(--scrollbar-thumb);
-  color: var(--text-color);
-  font-size: 1.2rem;
+  background: var(--surface-transparent);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  padding: 0;
+  border-radius: 999px;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 1rem;
-  height: 38px;
-  width: 38px;
+  margin-left: 0.6rem;
+  height: 40px;
+  width: 40px;
 }
 
 .theme-toggle-btn:hover {
-  background: var(--border-color);
+  background: var(--surface-transparent-hover);
+  color: var(--text-h);
+  transform: rotate(-12deg);
 }
