@@ -1,9 +1,12 @@
 import React, { useRef, useState, useCallback } from 'react';
+import { downloadStudyPdf } from '../lib/studyPdf';
 import './StudyViewer.css';
 
 function StudyViewer({ study, onVerseClick }) {
   const scrollRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -26,14 +29,42 @@ function StudyViewer({ study, onVerseClick }) {
       ? `${study.type}${study.week ? ` · Week ${study.week}` : ''}`
       : `Week ${study.week} · ${study.type}`;
 
+  const handleDownload = async () => {
+    setDownloadError(false);
+    setDownloading(true);
+    try {
+      await downloadStudyPdf(study);
+    } catch {
+      setDownloadError(true);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="study-viewer" data-testid="study-viewer" ref={scrollRef} onScroll={handleScroll}>
       <div className="reading-progress" style={{ transform: `scaleX(${progress})` }} aria-hidden="true" />
 
       <article className="viewer-measure">
         <header className="viewer-header">
-          <p className="viewer-week">{eyebrow}</p>
+          <div className="viewer-header-top">
+            <p className="viewer-week">{eyebrow}</p>
+            <button
+              type="button"
+              className="viewer-download"
+              onClick={handleDownload}
+              disabled={downloading}
+              title="Download this study as a PDF"
+            >
+              <span aria-hidden="true">↓</span> {downloading ? 'Preparing…' : 'PDF'}
+            </button>
+          </div>
           <h1 className="viewer-topic">{study.topic}</h1>
+          {downloadError && (
+            <p className="viewer-download-error" role="alert">
+              Could not generate the PDF. Please try again.
+            </p>
+          )}
         </header>
 
         <div className="viewer-content">

@@ -15,6 +15,7 @@
     "@fontsource-variable/newsreader": "^5.2.10",
     "@google/generative-ai": "^0.24.1",
     "firebase": "^12.14.0",
+    "jspdf": "^4.2.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
