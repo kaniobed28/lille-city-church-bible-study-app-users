@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "extract:manual": "node scripts/extract-manual.mjs \"GET READY TO WIN SOULS MANUAL-ENGLISH .pdf\" src/data/manual.en.json en"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",

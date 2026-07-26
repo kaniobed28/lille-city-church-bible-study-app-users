@@ -62,6 +62,50 @@ describe('studyPdf', () => {
     expect(doc.getNumberOfPages()).toBeGreaterThan(1);
   });
 
+  // Reads the text back out of the generated PDF. jsPDF writes its content
+  // streams uncompressed, so the words are there in the bytes — a page count
+  // would pass even if the pages came out blank.
+  const textOf = (doc) => Buffer.from(doc.output('datauristring').split(',')[1], 'base64').toString('latin1');
+
+  it('reprints the manual lesson a study refers to, so the export stands alone', async () => {
+    const referring = {
+      ...study,
+      topic: 'Déployés pour Gagner des Âmes – Leçon 3: Dieu a Donné à l’Humanité la Vie',
+      introduction: '(Se Référer au Manuel Préparez-vous à Gagner des Âmes) 88 88',
+    };
+
+    const bytes = textOf(await createStudyPdf(referring));
+
+    expect(bytes).toContain('God Gave Humankind Life');       // the lesson heading
+    expect(bytes).toContain('Giver of Life');                 // its actual prose
+    expect(bytes).toContain('reprinted at the end');          // the inline pointer
+    expect(bytes).not.toContain('Se R');                      // the dead referral is gone
+  });
+
+  it('reprints the French edition for a French reader', async () => {
+    const referring = {
+      ...study,
+      topic: 'Déployés pour Gagner des Âmes – Leçon 3: Dieu a Donné à l’Humanité la Vie',
+      introduction: '(Se Référer au Manuel Préparez-vous à Gagner des Âmes) 88 88',
+    };
+
+    const bytes = textOf(await createStudyPdf(referring, 'fr'));
+
+    expect(bytes).toContain('Dieu est le Donateur de la Vie');
+    expect(bytes).toContain('VERSET');                 // section labels are set in caps
+    expect(bytes).toContain('Leçon 3');
+    expect(bytes).not.toContain('God Gave Humankind Life');
+    // Accents must survive the Latin-1 fold jsPDF's core fonts require;
+    // silently dropping them would leave "rponses" in a French document.
+    expect(bytes).toContain('réponses');
+    expect(bytes).toContain('désobéissance');
+  });
+
+  it('leaves a study without referrals unchanged in length', async () => {
+    const doc = await createStudyPdf(study);
+    expect(doc.getNumberOfPages()).toBe(1);
+  });
+
   it('names the file from the week and topic', () => {
     expect(buildFileName(study)).toBe('week-3-walking-in-the-light.pdf');
   });

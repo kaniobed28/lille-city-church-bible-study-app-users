@@ -9,6 +9,9 @@
    experience shouldn't pay for a feature most sessions skip.
    ============================================================ */
 
+import { splitManualReferences, getManual } from './manual';
+import { t, studyEyebrow } from './i18n';
+
 const PAGE = { width: 210, height: 297 };            // A4, mm
 const MARGIN = { top: 22, bottom: 20, x: 22 };
 const CONTENT_WIDTH = PAGE.width - MARGIN.x * 2;
@@ -59,11 +62,9 @@ function loadLogo() {
   return logoPromise;
 }
 
-function buildEyebrow(study) {
-  return study.type === 'Home Cell' || study.type === 'Special Event'
-    ? `${study.type}${study.week ? ` - Week ${study.week}` : ''}`
-    : `Week ${study.week} - ${study.type}`;
-}
+// The hyphen separator keeps the eyebrow inside Latin-1, which jsPDF's
+// core fonts are limited to.
+const buildEyebrow = (study, language) => studyEyebrow(study, language, '-');
 
 export function buildFileName(study) {
   const week = study.week ? `week-${study.week}` : 'study';
@@ -79,9 +80,10 @@ export function buildFileName(study) {
  * Renders a study document into a jsPDF instance.
  * Exported for testing; use downloadStudyPdf for the user-facing action.
  */
-export async function createStudyPdf(study) {
+export async function createStudyPdf(study, language = study?.language) {
   const [{ jsPDF }, logo] = await Promise.all([import('jspdf'), loadLogo()]);
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const copy = t(language);
   let y = MARGIN.top;
 
   /* --- layout primitives --- */
@@ -148,6 +150,37 @@ export async function createStudyPdf(study) {
     y += 1;
   };
 
+  /* --- study prose, with its manual referrals resolved ---
+     A study that says "refer to the manual" would export as the same dead
+     instruction, so referrals are noted inline and the lessons they point to
+     are reprinted at the end — the download stands on its own. */
+
+  const referenced = new Map();
+  const { manual } = getManual(language);
+
+  const prose = (value) => {
+    splitManualReferences(value, { topic: study.topic, language })
+      .forEach((segment) => {
+        if (segment.type !== 'reference') {
+          text(segment.text, { gap: 3 });
+          return;
+        }
+
+        if (segment.lesson) {
+          referenced.set(segment.lesson.number, segment.lesson);
+          text(
+            `From ${manual.title} - ${manual.labels.lesson} ${segment.lesson.number}: ${segment.lesson.title}`
+            + ` (${copy.reprintedAtEnd}).`,
+            { font: 'helvetica', style: 'italic', size: 9.5, color: MUTED, gap: 3 }
+          );
+        } else {
+          text(copy.refersToManual(manual.title), {
+            font: 'helvetica', style: 'italic', size: 9.5, color: MUTED, gap: 3,
+          });
+        }
+      });
+  };
+
   /* --- header --- */
 
   if (logo) {
@@ -158,7 +191,7 @@ export async function createStudyPdf(study) {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   doc.setTextColor(...ACCENT);
-  doc.text(sanitize(buildEyebrow(study)).toUpperCase(), MARGIN.x, y, { charSpace: 0.4 });
+  doc.text(sanitize(buildEyebrow(study, language)).toUpperCase(), MARGIN.x, y, { charSpace: 0.4 });
   y += 8;
 
   text(study.topic, { style: 'normal', size: 22, lineHeight: 1.2, gap: 3 });
@@ -171,12 +204,12 @@ export async function createStudyPdf(study) {
   /* --- sections, in StudyViewer order --- */
 
   if (study.mainTexts) {
-    sectionLabel('Main Texts');
+    sectionLabel(copy.mainTexts);
     text(study.mainTexts, { style: 'italic', gap: 3 });
   }
 
   if (study.memoryVerse) {
-    sectionLabel('Memory Verse');
+    sectionLabel(copy.memoryVerse);
     const before = y;
     text(study.memoryVerse, { style: 'italic', indent: 6, gap: 3 });
     doc.setDrawColor(...ACCENT);
@@ -185,23 +218,23 @@ export async function createStudyPdf(study) {
   }
 
   if (study.objectives?.length) {
-    sectionLabel('Objectives');
+    sectionLabel(copy.objectives);
     list(study.objectives);
   }
 
   if (study.introduction) {
-    sectionLabel('Introduction');
-    text(study.introduction, { gap: 3 });
+    sectionLabel(copy.introduction);
+    prose(study.introduction);
   }
 
   if (study.questions?.length) {
-    sectionLabel('Questions & Answers');
+    sectionLabel(copy.questionsAndAnswers);
     const answersHidden = study.hideAnswers !== false;
 
     study.questions.forEach((q, i) => {
       text(`${i + 1}. ${q.question}`, { style: 'bold', gap: 1 });
       if (answersHidden) {
-        text('Answers will be revealed by the admin after the studies.', {
+        text(copy.answersHidden, {
           font: 'helvetica', size: 9, color: MUTED, indent: 6, gap: 3,
         });
       } else {
@@ -212,13 +245,56 @@ export async function createStudyPdf(study) {
   }
 
   if (study.lifeApplications?.length && !study.hideLifeApplications) {
-    sectionLabel('Life Application');
+    sectionLabel(copy.lifeApplication);
     list(study.lifeApplications);
   }
 
   if (study.conclusion) {
-    sectionLabel('Conclusion');
-    text(study.conclusion, { gap: 3 });
+    sectionLabel(copy.conclusion);
+    prose(study.conclusion);
+  }
+
+  /* --- the manual lessons this study leans on --- */
+
+  for (const lesson of referenced.values()) {
+    newPage();
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...ACCENT);
+    doc.text(sanitize(`From ${manual.title}`).toUpperCase(), MARGIN.x, y, { charSpace: 0.4 });
+    y += 8;
+
+    text(`${manual.labels.lesson} ${lesson.number}: ${lesson.title}`, { size: 17, lineHeight: 1.25, gap: 3 });
+
+    doc.setDrawColor(...ACCENT);
+    doc.setLineWidth(0.4);
+    doc.line(MARGIN.x, y, MARGIN.x + CONTENT_WIDTH, y);
+    y += 7;
+
+    for (const block of lesson.blocks) {
+      if (block.type === 'note') {
+        sectionLabel(block.label);
+        text(block.text, { gap: 2 });
+      } else if (block.type === 'heading') {
+        text(`${block.number}. ${block.text}`, { style: 'bold', gap: 1 });
+      } else if (block.type === 'paragraph') {
+        text(block.text, { gap: 2 });
+      } else if (block.type === 'memoryVerse') {
+        sectionLabel(`${manual.labels.memoryVerse} - ${block.reference}`);
+        block.verses.forEach((verse) => {
+          text(verse.text, { style: 'italic', indent: 6, gap: 0 });
+          if (verse.reference) {
+            text(`- ${verse.reference}`, { font: 'helvetica', size: 8.5, color: MUTED, indent: 6, gap: 2 });
+          }
+        });
+      } else if (block.type === 'questions') {
+        sectionLabel(manual.labels.questions);
+        list(block.items);
+      }
+    }
+
+    text(manual.copyright, { font: 'helvetica', size: 7.5, color: MUTED, gap: 0 });
   }
 
   /* --- footer: page numbers, added once the page count is known --- */
@@ -229,21 +305,21 @@ export async function createStudyPdf(study) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(...MUTED);
-    doc.text('Lille City Church - Bible Study', MARGIN.x, PAGE.height - 12);
+    doc.text(sanitize(copy.pdfFooter), MARGIN.x, PAGE.height - 12);
     doc.text(`${page} / ${pages}`, PAGE.width - MARGIN.x, PAGE.height - 12, { align: 'right' });
   }
 
   doc.setProperties({
     title: sanitize(study.topic),
-    subject: sanitize(buildEyebrow(study)),
+    subject: sanitize(buildEyebrow(study, language)),
     creator: 'Lille City Church Bible Study',
   });
 
   return doc;
 }
 
-export async function downloadStudyPdf(study) {
+export async function downloadStudyPdf(study, language) {
   if (!study) return;
-  const doc = await createStudyPdf(study);
+  const doc = await createStudyPdf(study, language);
   doc.save(buildFileName(study));
 }

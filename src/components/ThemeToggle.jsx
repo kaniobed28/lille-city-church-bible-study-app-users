@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { t } from '../lib/i18n';
 import './ThemeToggle.css';
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ language = 'en' }) {
   const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'dark');
+  const copy = t(language);
 
   useEffect(() => {
     localStorage.setItem('app_theme', theme);
@@ -14,7 +16,7 @@ export default function ThemeToggle() {
   };
 
   return (
-    <button className="theme-toggle-btn" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+    <button className="theme-toggle-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? copy.switchToLight : copy.switchToDark}>
       {theme === 'dark' ? (
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="5"></circle>
