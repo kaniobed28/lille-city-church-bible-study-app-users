@@ -1,27 +1,27 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { genAI, aiTools } from '../lib/gemini';
 import { formatMessage } from '../lib/formatMessage';
+import { getManual, getManualLesson, lessonToText, findLessonNumber } from '../lib/manual';
+import { t } from '../lib/i18n';
 import './AiChat.css';
 
-const SYSTEM_INSTRUCTION =
-  "You are the Lille City Church Bible Study Assistant. You have deep knowledge of the entire Bible. If the user asks for a Bible verse, chapter, or theological concept, you must answer them directly from your own knowledge. Do not refuse to quote scriptures. You also have tools to navigate the app and read the current study on the screen. Keep answers warm, clear, and concise.";
+const buildSystemInstruction = (language) =>
+  "You are the Lille City Church Bible Study Assistant. You have deep knowledge of the entire Bible. If the user asks for a Bible verse, chapter, or theological concept, you must answer them directly from your own knowledge. Do not refuse to quote scriptures. You also have tools to navigate the app and read the current study on the screen. "
+  + "The reference manual 'Get Ready to Win Souls' ('Préparez-vous à Gagner des Âmes' in French) is available to you through the get_manual_lesson tool, so when a study refers to the manual, read that lesson and explain it yourself — never send the reader off to find the booklet. "
+  + (language === 'fr'
+    ? "The reader is using the app in French: reply in French, and quote scripture in French (Louis Segond) unless they ask otherwise. "
+    : 'The reader is using the app in English: reply in English unless they write to you in another language. ')
+  + 'Keep answers warm, clear, and concise.';
 
-const GREETING = {
-  role: 'assistant',
-  content:
-    "Peace be with you. I'm your Lille City Church study companion. Ask me to explain a verse, quote scripture, jump to another week, or switch language — I'm reading this study alongside you.",
-};
+const greetingFor = (language) => ({ role: 'assistant', content: t(language).greeting });
 
-const SUGGESTIONS = [
-  "Explain this week's memory verse",
-  'Give me John 3:16 (NKJV)',
-  'What is the main point of this study?',
-  'Passe en français',
-];
-
-export default function AiChat({ currentStudy, setLanguage, studies, onSelectStudy, externalQuery, clearExternalQuery }) {
+export default function AiChat({ currentStudy, setLanguage, studies, onSelectStudy, externalQuery, clearExternalQuery, language = 'en' }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([GREETING]);
+  /* Only the real exchange lives in state. The opening greeting is derived at
+     render time, so it is always in the reader's current language — including
+     when the assistant switches language itself mid-session — without an
+     effect writing state back on every change. */
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
@@ -29,15 +29,16 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
   const chatEndRef = useRef(null);
   const chatSessionRef = useRef(null);
   const inputRef = useRef(null);
+  const copy = t(language);
 
   const startSession = useCallback(() => {
     const model = genAI.getGenerativeModel({
       model: 'gemini-flash-latest',
-      systemInstruction: SYSTEM_INSTRUCTION,
+      systemInstruction: buildSystemInstruction(language),
       tools: aiTools,
     });
     chatSessionRef.current = model.startChat();
-  }, []);
+  }, [language]);
 
   // Initialize Gemini chat session once
   useEffect(() => {
@@ -55,15 +56,15 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
   useEffect(() => {
     if (isOpen) {
       setHasUnread(false);
-      const t = setTimeout(() => inputRef.current?.focus(), 60);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => inputRef.current?.focus(), 60);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
   // Surface an unread dot when a reply lands while the window is closed
   useEffect(() => {
     const last = messages[messages.length - 1];
-    if (last && last.role === 'assistant' && !isOpen && messages.length > 1) {
+    if (last && last.role === 'assistant' && !isOpen) {
       setHasUnread(true);
     }
   }, [messages, isOpen]);
@@ -84,6 +85,22 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
             conclusion: currentStudy.conclusion,
           })
         : 'No study is currently open.';
+    } else if (name === 'get_manual_lesson') {
+      // Fall back to the lesson the open study points at, so "explain what the
+      // manual says here" works without the model having to guess a number.
+      const number = args?.lesson ?? findLessonNumber(currentStudy?.topic);
+      const lesson = number ? getManualLesson(number, language) : null;
+
+      if (lesson) {
+        toolResult = lessonToText(lesson, language);
+      } else {
+        const { manual } = getManual(language);
+        toolResult = JSON.stringify({
+          manual: manual.title,
+          note: number ? `Lesson ${number} is not in this manual.` : 'No lesson specified.',
+          lessons: manual.lessons.map((l) => ({ lesson: l.number, title: l.title })),
+        });
+      }
     } else if (name === 'change_language') {
       const code = args.language_code;
       if (code === 'en' || code === 'fr') {
@@ -144,9 +161,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
     } catch (error) {
       console.error('Gemini API Error:', error);
       const isRateLimit = error?.message?.includes('429');
-      const errorMessage = isRateLimit
-        ? "We're going a little fast and reached the free-tier limit. Give it about 30–60 seconds, then try again."
-        : "I couldn't reach the assistant just now. Please check your connection and try again in a moment.";
+      const errorMessage = isRateLimit ? copy.rateLimit : copy.assistantUnreachable;
       setMessages((prev) => [...prev, { role: 'assistant', content: errorMessage }]);
     } finally {
       setIsLoading(false);
@@ -167,7 +182,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
 
   const handleClear = () => {
     startSession();
-    setMessages([GREETING]);
+    setMessages([]);
     setInput('');
     inputRef.current?.focus();
   };
@@ -189,29 +204,31 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
     }
   };
 
-  const showSuggestions = messages.length <= 1 && !isLoading;
+  const showSuggestions = messages.length === 0 && !isLoading;
+  // The greeting is not part of the thread; it opens it.
+  const thread = [greetingFor(language), ...messages];
 
   return (
     <div className="ai-chat-container">
       {isOpen ? (
-        <div className="ai-chat-window" role="dialog" aria-label="Bible study assistant">
+        <div className="ai-chat-window" role="dialog" aria-label={copy.bibleStudyAssistant}>
           <div className="ai-chat-header">
             <div className="ai-chat-heading">
-              <h3>Study Companion</h3>
+              <h3>{copy.companion}</h3>
               {currentStudy?.topic && (
                 <span className="ai-chat-context" title={currentStudy.topic}>
-                  Reading: {currentStudy.topic}
+                  {copy.reading} {currentStudy.topic}
                 </span>
               )}
             </div>
             <div className="ai-chat-header-actions">
-              <button onClick={handleClear} className="ai-icon-btn" aria-label="Start a new conversation" title="New conversation">
+              <button onClick={handleClear} className="ai-icon-btn" aria-label={copy.startNewConversation} title={copy.newConversation}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
                   <path d="M3 3v5h5" />
                 </svg>
               </button>
-              <button onClick={() => setIsOpen(false)} className="ai-icon-btn" aria-label="Close assistant">
+              <button onClick={() => setIsOpen(false)} className="ai-icon-btn" aria-label={copy.closeAssistant}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
@@ -221,7 +238,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
           </div>
 
           <div className="ai-chat-messages" aria-live="polite">
-            {messages.map((msg, idx) => (
+            {thread.map((msg, idx) => (
               <div key={idx} className={`chat-message ${msg.role}`}>
                 <div className="chat-bubble">
                   {msg.role === 'assistant' ? formatMessage(msg.content) : msg.content}
@@ -231,7 +248,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
 
             {isLoading && (
               <div className="chat-message assistant">
-                <div className="chat-bubble typing" aria-label="Assistant is typing">
+                <div className="chat-bubble typing" aria-label={copy.assistantTyping}>
                   <span></span><span></span><span></span>
                 </div>
               </div>
@@ -239,7 +256,7 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
 
             {showSuggestions && (
               <div className="ai-suggestions">
-                {SUGGESTIONS.map((s) => (
+                {copy.suggestions.map((s) => (
                   <button key={s} className="ai-suggestion-chip" onClick={() => handleSuggestion(s)}>
                     {s}
                   </button>
@@ -256,12 +273,12 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about a verse, or say “go to week 3”…"
+              placeholder={copy.askPlaceholder}
               rows={1}
               disabled={isLoading}
-              aria-label="Message the study companion"
+              aria-label={copy.messageCompanion}
             />
-            <button onClick={handleSendClick} disabled={isLoading || !input.trim()} aria-label="Send message">
+            <button onClick={handleSendClick} disabled={isLoading || !input.trim()} aria-label={copy.sendMessage}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13" />
                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
@@ -270,12 +287,12 @@ export default function AiChat({ currentStudy, setLanguage, studies, onSelectStu
           </div>
         </div>
       ) : (
-        <button className="ai-chat-toggle" onClick={() => setIsOpen(true)} aria-label="Open study companion">
+        <button className="ai-chat-toggle" onClick={() => setIsOpen(true)} aria-label={copy.openCompanion}>
           <svg className="ai-toggle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" />
             <path d="M5 16l.8 2.2L8 19l-2.2.8L5 22l-.8-2.2L2 19l2.2-.8z" />
           </svg>
-          <span>Ask the Companion</span>
+          <span>{copy.askCompanion}</span>
           {hasUnread && <span className="ai-unread-dot" aria-hidden="true" />}
         </button>
       )}

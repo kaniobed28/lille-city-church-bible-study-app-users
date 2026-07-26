@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
+import { t } from './lib/i18n';
 import './App.css';
 import LanguageSelector from './components/LanguageSelector';
 import StudySidebar from './components/StudySidebar';
 import StudyViewer from './components/StudyViewer';
+import ManualViewer from './components/ManualViewer';
 import AiChat from './components/AiChat';
 import ThemeToggle from './components/ThemeToggle';
 function App() {
@@ -13,10 +15,17 @@ function App() {
   const [selectedStudyIndex, setSelectedStudyIndex] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Non-null when the reader is in the reference manual rather than a study.
+  const [manualLesson, setManualLesson] = useState(null);
+
+  const copy = t(language);
 
   useEffect(() => {
     localStorage.setItem('app_language', language);
-  }, [language]);
+    // Screen readers and the browser announce the page in the right language.
+    document.documentElement.lang = language;
+    document.title = copy.documentTitle;
+  }, [language, copy.documentTitle]);
 
   // Subscribe to Firestore studies when language changes
   useEffect(() => {
@@ -71,11 +80,17 @@ function App() {
 
   const handleSelectStudy = (index) => {
     setSelectedStudyIndex(index);
+    setManualLesson(null);
     setIsSidebarOpen(false); // Close sidebar on mobile after selection
   };
 
+  const handleSelectManualLesson = (lessonNumber) => {
+    setManualLesson(lessonNumber);
+    setIsSidebarOpen(false);
+  };
+
   const handleVerseClick = (verse) => {
-    setAiQuery(`Please provide the following Bible verse: ${verse}. Use the NKJV version unless I have previously asked for a different version.`);
+    setAiQuery(copy.verseRequest(verse));
   };
 
   const toggleSidebar = () => {
@@ -86,25 +101,25 @@ function App() {
     <div className="app-container">
       <header className="app-header">
         <div className="header-left">
-          <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Toggle menu">
+          <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label={copy.toggleMenu}>
             ☰
           </button>
-          <h1 className="app-title" data-testid="main-title">Bible Study App</h1>
+          <h1 className="app-title" data-testid="main-title">{copy.appTitle}</h1>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <LanguageSelector language={language} setLanguage={setLanguage} />
-          <ThemeToggle />
+          <ThemeToggle language={language} />
         </div>
       </header>
       
       <main className="dashboard-layout">
         <aside className={`sidebar-container ${isSidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header-mobile">
-            <h2>Topics</h2>
-            <button className="close-btn" onClick={toggleSidebar}>✕</button>
+            <h2>{copy.topics}</h2>
+            <button className="close-btn" onClick={toggleSidebar} aria-label={copy.closeMenu}>✕</button>
           </div>
           {loading ? (
-            <div className="study-sidebar" aria-busy="true" aria-label="Loading studies">
+            <div className="study-sidebar" aria-busy="true" aria-label={copy.loadingStudies}>
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="sidebar-item skeleton-item">
                   <div className="skeleton skeleton-line short"></div>
@@ -117,6 +132,9 @@ function App() {
               studies={studies}
               selectedStudyIndex={selectedStudyIndex}
               onSelectStudy={handleSelectStudy}
+              language={language}
+              activeManualLesson={manualLesson}
+              onSelectManualLesson={handleSelectManualLesson}
             />
           )}
         </aside>
@@ -125,7 +143,7 @@ function App() {
 
         <section className="viewer-container">
           {loading ? (
-            <div className="study-viewer" aria-busy="true" aria-label="Loading study">
+            <div className="study-viewer" aria-busy="true" aria-label={copy.loadingStudy}>
               <div className="viewer-measure">
                 <div className="skeleton skeleton-line short" style={{ width: '30%', height: '0.9rem' }}></div>
                 <div className="skeleton skeleton-line" style={{ width: '75%', height: '2.25rem', margin: '1rem 0 2.5rem' }}></div>
@@ -138,8 +156,15 @@ function App() {
                 <div className="skeleton skeleton-line" style={{ width: '70%' }}></div>
               </div>
             </div>
+          ) : manualLesson !== null ? (
+            <ManualViewer
+              lessonNumber={manualLesson}
+              language={language}
+              onSelectLesson={setManualLesson}
+              onClose={() => setManualLesson(null)}
+            />
           ) : (
-            <StudyViewer study={currentStudy} onVerseClick={handleVerseClick} />
+            <StudyViewer study={currentStudy} onVerseClick={handleVerseClick} language={language} />
           )}
         </section>
       </main>
@@ -151,6 +176,7 @@ function App() {
         onSelectStudy={handleSelectStudy} 
         externalQuery={aiQuery}
         clearExternalQuery={() => setAiQuery('')}
+        language={language}
       />
     </div>
   );

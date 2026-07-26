@@ -1,0 +1,218 @@
+/* ============================================================
+   Reference manual — lesson typography
+
+   The booklet reads as a quieter companion to the study itself:
+   same serif measure, one step down in scale, so an inline excerpt
+   is clearly source material rather than more of the study.
+   ============================================================ */
+
+.manual-lesson {
+  font-family: var(--font-reading);
+  color: var(--text-reading);
+}
+
+.manual-lesson-title {
+  font-family: var(--font-reading);
+  font-size: 1.45rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--text-h);
+  margin: 0 0 1.5rem;
+}
+
+.manual-lesson-number {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+/* ---------- Body ---------- */
+
+.manual-paragraph {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin: 0 0 1rem;
+}
+
+.manual-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  font-family: var(--font-reading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-h);
+  margin: 1.85rem 0 0.85rem;
+}
+
+.manual-heading-number {
+  flex: none;
+  align-self: flex-start;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: var(--primary-transparent);
+  border-radius: 50%;
+  transform: translateY(0.1rem);
+}
+
+/* ---------- Editorial notes (Revision, Scripture Reading, …) ---------- */
+
+.manual-note {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  background: var(--surface-transparent);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.manual-note-label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.manual-note-scripture-reading {
+  border-left: 2px solid var(--accent);
+}
+
+.manual-note-conclusion,
+.manual-note-discussion {
+  border-left: 2px solid var(--primary-color);
+}
+
+/* ---------- Memory verse ---------- */
+
+.manual-verse {
+  background: var(--accent-bg);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.15rem 1.35rem;
+  margin: 1.5rem 0;
+}
+
+.manual-verse-label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+
+.manual-verse-text {
+  font-style: italic;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--text-h);
+  margin: 0 0 0.75rem;
+}
+
+.manual-verse-text:last-child {
+  margin-bottom: 0;
+}
+
+.manual-verse-cite {
+  display: block;
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+.manual-verse-cite::before {
+  content: '— ';
+}
+
+/* ---------- Questions ---------- */
+
+.manual-questions {
+  margin: 1.75rem 0 0;
+  padding: 1.25rem 1.4rem;
+  background: var(--surface-transparent);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+}
+
+.manual-questions-label {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 0.9rem;
+}
+
+.manual-questions ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: manual-question;
+}
+
+.manual-questions li {
+  position: relative;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  padding-left: 2.1rem;
+  margin-bottom: 0.85rem;
+  counter-increment: manual-question;
+}
+
+.manual-questions li:last-child {
+  margin-bottom: 0;
+}
+
+.manual-questions li::before {
+  content: counter(manual-question);
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  width: 1.45rem;
+  height: 1.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: var(--primary-transparent);
+  border-radius: 50%;
+}
+
+@media (max-width: 900px) {
+  .manual-lesson-title {
+    font-size: 1.28rem;
+  }
+
+  .manual-paragraph {
+    font-size: 1rem;
+  }
+}

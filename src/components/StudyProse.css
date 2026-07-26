@@ -1,0 +1,130 @@
+/* ============================================================
+   Manual referral — the callout that replaces a dead cross-reference
+   ============================================================ */
+
+.manual-ref {
+  margin: 1.5rem 0;
+  background: var(--surface-transparent);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  overflow: hidden;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.manual-ref:hover {
+  border-color: var(--border-strong);
+  border-left-color: var(--accent);
+}
+
+.manual-ref.open {
+  background: var(--surface-color);
+}
+
+.manual-ref-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.manual-ref-titles {
+  min-width: 0;
+}
+
+.manual-ref-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.3rem;
+}
+
+.manual-ref-title {
+  font-family: var(--font-reading);
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.manual-ref-lesson {
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.manual-ref-toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.manual-ref-toggle:hover {
+  border-color: var(--primary-color);
+  background: var(--primary-transparent);
+}
+
+.manual-ref-toggle:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.manual-ref-chevron {
+  font-size: 0.7em;
+  line-height: 1;
+}
+
+.manual-ref-unresolved {
+  flex: none;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.manual-ref-body {
+  padding: 0.25rem 1.25rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 0.25rem;
+  padding-top: 1.5rem;
+}
+
+.manual-ref-language-note {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: var(--accent-bg);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.75rem;
+  margin: 0 0 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .manual-ref-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .manual-ref-body {
+    padding: 1.25rem 1rem 1.25rem;
+  }
+}

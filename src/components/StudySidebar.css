@@ -75,3 +75,124 @@
   padding: 2rem 1rem;
   font-size: 0.95rem;
 }
+
+/* ---------- Reference manual ---------- */
+
+.sidebar-manual {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.sidebar-manual-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1rem 0.6rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.sidebar-manual-toggle:hover {
+  background: var(--surface-transparent-hover);
+}
+
+.sidebar-manual-toggle:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+}
+
+.sidebar-manual-label {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sidebar-manual-chevron {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.sidebar-manual-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.sidebar-manual-title {
+  font-family: var(--font-reading);
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem;
+  padding-left: 1.1rem;
+}
+
+.sidebar-manual-lesson {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem 0.5rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.sidebar-manual-lesson:hover {
+  background: var(--surface-transparent-hover);
+}
+
+.sidebar-manual-lesson.active {
+  background: var(--primary-transparent);
+  border-color: var(--border-color);
+}
+
+.sidebar-manual-lesson.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--primary-color);
+}
+
+.sidebar-manual-lesson:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+}
+
+.sidebar-manual-lesson-number {
+  flex: none;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 1rem;
+}
+
+.sidebar-manual-lesson.active .sidebar-manual-lesson-number {
+  color: var(--primary-color);
+}
+
+.sidebar-manual-lesson-title {
+  font-family: var(--font-reading);
+  font-size: 0.94rem;
+  line-height: 1.35;
+  color: var(--text-color);
+}

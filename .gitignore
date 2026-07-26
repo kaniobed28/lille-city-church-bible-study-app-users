@@ -6,4 +6,9 @@ dist-ssr/
 .env.*
 .DS_Store
 
+# Source booklet for scripts/extract-manual.mjs. Kept out of version control:
+# it is a 1.2 MB third-party publication (Ghana Evangelism Committee, all
+# rights reserved). Drop it in the project root to re-run `npm run extract:manual`.
+GET READY TO WIN SOULS MANUAL*.pdf
+
 .vercel
